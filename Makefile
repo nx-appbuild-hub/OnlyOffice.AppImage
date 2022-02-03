@@ -16,36 +16,33 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 PWD:=$(shell pwd)
 
-all: clean
+all: 
 
-	mkdir --parents $(PWD)/build
-	mkdir --parents $(PWD)/build/AppDir
+	mkdir --parents $(PWD)/build/Boilerplate.AppDir
+	apprepo --destination=$(PWD)/build appdir boilerplate libatk1.0-0 libatk-bridge2.0-0 libgtk-3-0
 
 	wget --output-document="$(PWD)/build/OnlyOffice.AppImage" "http://download.onlyoffice.com/install/desktop/editors/linux/DesktopEditors-x86_64.AppImage"
 	chmod +x $(PWD)/build/OnlyOffice.AppImage
-
-	wget --no-check-certificate --output-document=$(PWD)/build/build.rpm http://mirror.centos.org/centos/8/AppStream/x86_64/os/Packages/gtk3-3.22.30-6.el8.x86_64.rpm
-	cd $(PWD)/build && rpm2cpio $(PWD)/build/build.rpm | cpio -idmv && cd ..
-
-	wget --no-check-certificate --output-document=$(PWD)/build/build.rpm http://mirror.centos.org/centos/8/AppStream/x86_64/os/Packages/atk-2.28.1-1.el8.x86_64.rpm
-	cd $(PWD)/build && rpm2cpio $(PWD)/build/build.rpm | cpio -idmv && cd ..
-
-	wget --no-check-certificate --output-document=$(PWD)/build/build.rpm http://mirror.centos.org/centos/8/AppStream/x86_64/os/Packages/at-spi2-atk-2.26.2-1.el8.x86_64.rpm
-	cd $(PWD)/build && rpm2cpio $(PWD)/build/build.rpm | cpio -idmv && cd ..
-
-	wget --no-check-certificate --output-document=$(PWD)/build/build.rpm http://mirror.centos.org/centos/8/AppStream/x86_64/os/Packages/at-spi2-core-2.28.0-1.el8.x86_64.rpm
-	cd $(PWD)/build && rpm2cpio $(PWD)/build/build.rpm | cpio -idmv && cd ..
 		
 	cd $(PWD)/build && $(PWD)/build/OnlyOffice.AppImage --appimage-extract
 
 	rm -f $(PWD)/build/squashfs-root/asc-de.png
 	rm -f $(PWD)/build/squashfs-root/usr/share/metainfo/desktopeditors.appdata.xml
 
-	cp --force $(PWD)/AppDir/onlyoffice.svg $(PWD)/build/squashfs-root/asc-de.svg
-	cp --force --recursive $(PWD)/build/usr/lib64/* $(PWD)/build/squashfs-root/usr/lib
-	cp --force --recursive $(PWD)/build/usr/share/* $(PWD)/build/squashfs-root/usr/share
+	cp --force --recursive $(PWD)/build/squashfs-root/usr/lib/x86_64-linux-gnu/*  $(PWD)/build/squashfs-root/usr/lib/
 
-	export ARCH=x86_64 && bin/appimagetool.AppImage $(PWD)/build/squashfs-root $(PWD)/OnlyOffice.AppImage
+	rm -f $(PWD)/build/Boilerplate.AppDir/lib64/x86_64-linux-gnu
+	rm -rf $(PWD)/build/squashfs-root/usr/lib/x86_64-linux-gnu
+	
+	ln -s $(PWD)/build/squashfs-root/usr/lib64									$(PWD)/build/squashfs-root/usr/lib/x86_64-linux-gnu
+
+
+	cp --force --recursive $(PWD)/build/Boilerplate.AppDir/lib64/* 				$(PWD)/build/squashfs-root/usr/lib
+	cp --force --recursive $(PWD)/build/Boilerplate.AppDir/share/* 				$(PWD)/build/squashfs-root/usr/share
+
+	cp --force $(PWD)/AppDir/onlyoffice.svg 							$(PWD)/build/squashfs-root/asc-de.svg
+
+	export ARCH=x86_64 && bin/appimagetool.AppImage 	$(PWD)/build/squashfs-root $(PWD)/OnlyOffice.AppImage
 	chmod +x $(PWD)/OnlyOffice.AppImage
 
 clean:
