@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 PWD:=$(shell pwd)
 
-all: 
+all: clean
 
 	mkdir --parents $(PWD)/build/Boilerplate.AppDir
 	apprepo --destination=$(PWD)/build appdir boilerplate libatk1.0-0 libatk-bridge2.0-0 libgtk-3-0
